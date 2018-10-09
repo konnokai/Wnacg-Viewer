@@ -78,7 +78,7 @@
     <Compile Include="ShowBigPicture.Designer.cs">
       <DependentUpon>ShowBigPicture.cs</DependentUpon>
     </Compile>
-    <Compile Include="Xml2CShape.cs" />
+    <Compile Include="Xml2CSharp.cs" />
     <EmbeddedResource Include="DownloadBook.resx">
       <DependentUpon>DownloadBook.cs</DependentUpon>
     </EmbeddedResource>

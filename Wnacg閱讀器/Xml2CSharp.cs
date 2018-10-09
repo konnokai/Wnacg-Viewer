@@ -1,5 +1,6 @@
-﻿using System.Xml.Serialization;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Xml.Serialization;
+
 namespace Wnacg閱讀器
 {
     [XmlRoot(ElementName = "item")]

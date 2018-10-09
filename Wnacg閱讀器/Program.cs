@@ -12,7 +12,17 @@ namespace Wnacg閱讀器
         [STAThread]
         static void Main()
         {
-            RegisterUriScheme();
+            try { RegisterUriScheme(); }
+            catch (Exception ex)
+            {
+                if (Properties.Settings.Default.UriSchemeInstallErrorShowMessageBox)
+                MessageBox.Show("無法註冊URL啟動功能至登入表，所以無法使用網址啟動功能(Chrome插件)\r\n" +
+                    "若需要使用該功能，請以系統管理員身分執行此程式\r\n" +
+                    "此訊息只會於註冊錯誤時顯示一次，後續如一樣無權限註冊則不會提示\r\n" +
+                    "錯誤內容: " + ex.Message);
+                Properties.Settings.Default.UriSchemeInstallErrorShowMessageBox = false;
+                Properties.Settings.Default.Save();
+            }
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new Form1(Environment.GetCommandLineArgs().Length == 2 ? Environment.GetCommandLineArgs()[1] : ""));
@@ -44,6 +54,7 @@ namespace Wnacg閱讀器
                             commandKey.SetValue("", "\"" + applicationLocation + "\" \"%1\"");
                         }
                     }
+                    MessageBox.Show("已註冊網址啟動功能，未來如果有變更此程式的路徑會重新註冊(需要系統管理員功能)");
                 }
                 else
                 {
