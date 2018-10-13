@@ -145,7 +145,7 @@ namespace Wnacg閱讀器
         string CheckAndConvertURLToID(string url)
         {
             url = url.Replace("wnacg:", "");
-            if (url.StartsWith("https://www.wnacg.com") || url.StartsWith("https://www.wnacg.org"))
+            if (url.StartsWith("https://www.wnacg.com") || url.StartsWith("https://www.wnacg.org") || url.StartsWith("https://wnacg.com") || url.StartsWith("https://wnacg.org"))
             {
                 try
                 {
