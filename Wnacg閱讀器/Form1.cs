@@ -149,7 +149,7 @@ namespace Wnacg閱讀器
             {
                 try
                 {
-                    string[] urlSplit = url.Split(new char[] { '-' });
+                    string[] urlSplit = url.Split(new char[] { '?' })[0].Split(new char[] { '-' });
                     string tempID = urlSplit[urlSplit.Length - 1], ID = "";
 
                     foreach (char item in tempID)
