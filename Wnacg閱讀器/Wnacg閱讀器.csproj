@@ -50,9 +50,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ButtonWithWebImage.cs">
-      <SubType>Component</SubType>
-    </Compile>
     <Compile Include="DownloadBook.cs">
       <SubType>Form</SubType>
     </Compile>

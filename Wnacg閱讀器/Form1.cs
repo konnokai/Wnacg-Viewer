@@ -44,6 +44,12 @@ namespace Wnacg閱讀器
         {
             if (id == "") { MessageBox.Show("未載入本子"); return; }
 
+            if (listImageViewUrl.Count > 60 && 
+                MessageBox.Show("因此本子的頁數超過60頁(包含封面)，故將採用直接讀取網頁的方式來下載\r\n" +
+                "此方式會導致下載速度變得極為緩慢，即使如此你還是要下載嗎?\r\n" +
+                "(實際速度還是依照自身網速而定)", 
+                "注意", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.No) return;
+
             if (Properties.Settings.Default.DownloadPath != "" && Directory.Exists(Properties.Settings.Default.DownloadPath))
                 folderBrowserDialog1.SelectedPath = Properties.Settings.Default.DownloadPath;
 
@@ -52,7 +58,7 @@ namespace Wnacg閱讀器
             Properties.Settings.Default.DownloadPath = folderBrowserDialog1.SelectedPath;
             Properties.Settings.Default.Save();
 
-            new DownloadBook(folderBrowserDialog1.SelectedPath, id).ShowDialog();
+            new DownloadBook(folderBrowserDialog1.SelectedPath, id, listImageViewUrl).ShowDialog();
         }
 
         private void pictureBox_Click(object sender, EventArgs e)
@@ -65,6 +71,7 @@ namespace Wnacg閱讀器
         void GetRss(string url)
         {
             btn_Download.Enabled = false;
+
             foreach (object item in panel1.Controls)
                 if (item is PictureBox)
                 {
@@ -72,16 +79,19 @@ namespace Wnacg閱讀器
                     if (pictureBox.Image != null) pictureBox.Image.Dispose();
                     pictureBox.Dispose();
                 }
+
             panel1.Controls.Clear();
             listImageViewUrl.Clear();
 
             new Thread(new ThreadStart(delegate
             {
                 id = CheckAndConvertURLToID(url);
+
                 if (id != "")
                 {
                     SetFormText("取得資料中...");
-                    List<string> imageURL = new List<string>(), pageURL = new List<string>();
+                    List<string> imageURL = new List<string>();
+                    int totalPage = 0;
 
                     try
                     {
@@ -89,7 +99,6 @@ namespace Wnacg閱讀器
                         IEnumerable<HtmlNode> htmlDocumentNode = htmlWeb.Load(string.Format("{0}/photos-index-aid-{1}.html", serverHost, id)).DocumentNode.Descendants();
 
                         string title = HttpUtility.HtmlDecode(htmlDocumentNode.First((x) => (x.ParentNode.Name == "head" && x.Name == "title")).InnerHtml);
-                        SetFormText(title.Remove(title.Length - 21));
 
                         IEnumerable<HtmlNode> htmlNodeCollection = htmlDocumentNode.Where((x) => x.NodeType == HtmlNodeType.Element && x.Name == "img" && x.ParentNode.Name == "a");
                         foreach (var item in htmlNodeCollection) if (item.Attributes["src"].Value.StartsWith("//")) imageURL.Add(item.Attributes["src"].Value);
@@ -98,17 +107,19 @@ namespace Wnacg閱讀器
                         foreach (var item in htmlNodeCollection2) listImageViewUrl.Add(item.Attributes["href"].Value);
 
                         htmlNodeCollection = htmlDocumentNode.Where((x) => x.NodeType == HtmlNodeType.Element && x.Name == "a" && x.ParentNode.Attributes.Contains("class") && x.ParentNode.Attributes["class"].Value == "f_left paginator");
-                        foreach (var item in htmlNodeCollection) pageURL.Add(item.Attributes["href"].Value);
+                        totalPage = int.Parse(htmlNodeCollection.Last().InnerText);
 
-                        foreach (string item in pageURL)
+                        for (int i = 2; i < totalPage + 1; i++)
                         {
-                            htmlDocumentNode = htmlWeb.Load(serverHost + item).DocumentNode.Descendants();
+                            htmlDocumentNode = htmlWeb.Load(string.Format("{0}/photos-index-page-{1}-aid-{2}.html", serverHost, i.ToString(), id)).DocumentNode.Descendants();
                             htmlNodeCollection = htmlDocumentNode.Where((x) => x.NodeType == HtmlNodeType.Element && x.Name == "img" && x.ParentNode.Name == "a");
                             foreach (var item2 in htmlNodeCollection) if (item2.Attributes["src"].Value.StartsWith("//")) imageURL.Add(item2.Attributes["src"].Value);
 
                             htmlNodeCollection2 = htmlDocumentNode.Where((x) => x.NodeType == HtmlNodeType.Element && x.Name == "a" && x.ParentNode.Attributes.Any(x2 => x2.Name == "class" && x2.Value == "pic_box"));
                             foreach (var item2 in htmlNodeCollection2) listImageViewUrl.Add(item2.Attributes["href"].Value);
                         }
+
+                        SetFormText(title.Remove(title.Length - 21));
                     }
                     catch (Exception) { SetFormText("等待中..."); MessageBox.Show("無法取得資料，請確定ID是否正確"); return; }
 
@@ -161,7 +172,7 @@ namespace Wnacg閱讀器
                 }
                 catch (Exception) { return ""; }
             }
-            else return (IsNumber(url) ? url : "");
+            else return IsNumber(url) ? url : "";
         }
 
         bool IsNumber(string text)
