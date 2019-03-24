@@ -34,5 +34,17 @@ namespace Wnacg閱讀器.Properties {
                 this["DownloadPath"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool UriSchemeInstallErrorShowMessageBox {
+            get {
+                return ((bool)(this["UriSchemeInstallErrorShowMessageBox"]));
+            }
+            set {
+                this["UriSchemeInstallErrorShowMessageBox"] = value;
+            }
+        }
     }
 }
