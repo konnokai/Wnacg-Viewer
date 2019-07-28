@@ -106,8 +106,13 @@ namespace Wnacg閱讀器
                         IEnumerable<HtmlNode> htmlNodeCollection2 = htmlDocumentNode.Where((x) => x.NodeType == HtmlNodeType.Element && x.Name == "a" && x.ParentNode.Attributes.Any(x2 => x2.Name == "class" && x2.Value == "pic_box"));
                         foreach (var item in htmlNodeCollection2) listImageViewUrl.Add(item.Attributes["href"].Value);
 
-                        htmlNodeCollection = htmlDocumentNode.Where((x) => x.NodeType == HtmlNodeType.Element && x.Name == "a" && x.ParentNode.Attributes.Contains("class") && x.ParentNode.Attributes["class"].Value == "f_left paginator");
-                        totalPage = int.Parse(htmlNodeCollection.Last().InnerText);
+                        try
+                        {
+                            htmlNodeCollection = htmlDocumentNode.Where((x) => x.NodeType == HtmlNodeType.Element && x.Name == "a" && x.ParentNode.Attributes.Contains("class") && x.ParentNode.Attributes["class"].Value == "f_left paginator");
+                            totalPage = int.Parse(htmlNodeCollection.Last().InnerText);
+                        }
+                        catch (Exception) { totalPage = 1; }
+                        
 
                         for (int i = 2; i < totalPage + 1; i++)
                         {
@@ -121,7 +126,12 @@ namespace Wnacg閱讀器
 
                         SetFormText(title.Remove(title.Length - 21));
                     }
-                    catch (Exception) { SetFormText("等待中..."); MessageBox.Show("無法取得資料，請確定ID是否正確"); return; }
+                    catch (Exception)
+                    {
+                        SetFormText("等待中...");
+                        MessageBox.Show("無法取得資料，請確定ID是否正確");
+                        return;
+                    }
 
                     btn_Download.Invoke(new Action(delegate { btn_Download.Enabled = true; }));
 
@@ -155,8 +165,8 @@ namespace Wnacg閱讀器
 
         string CheckAndConvertURLToID(string url)
         {
-            url = url.Replace("wnacg:", "");
-            if (url.StartsWith("https://www.wnacg.com") || url.StartsWith("https://www.wnacg.org") || url.StartsWith("https://wnacg.com") || url.StartsWith("https://wnacg.org"))
+            url = url.Replace("wnacg:", "").Replace("www.", "").Replace("m.", "");
+            if (url.StartsWith("https://wnacg.com") || url.StartsWith("https://wnacg.org") || url.StartsWith("https://wnacg.net"))
             {
                 try
                 {
